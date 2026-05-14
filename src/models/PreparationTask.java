@@ -4,8 +4,7 @@
  */
 package models;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 /**
  *
@@ -15,25 +14,59 @@ public class PreparationTask {
     //id, vendor id, event id, task name, deadline, status, notes
     public int ID;
     public int eventID;
+    public int vendorID;
     public String taskName;
-    public String deadline;
+    public LocalDateTime deadline;
     public String status;
     public String notes;
+    public String vendorName;
+    public String eventName;
+    
+    public PreparationTask(){}
     
     //constructor
     public PreparationTask(
         int ID,
         int eventID,
+        int vendorID,
         String taskName,
-        String deadline,
+        LocalDateTime deadline,
         String status,
         String notes
     ){
         this.ID = ID;
         this.eventID = eventID;
+        this.vendorID = vendorID;
         this.taskName = taskName;
         this.deadline = deadline;
         this.status = status;
         this.notes = notes;
+    }
+    
+    public PreparationTask(
+        int eventID, 
+        int vendorID, 
+        String taskName, 
+        LocalDateTime deadline, 
+        String status, 
+        String notes    
+    ){
+        this.eventID = eventID;
+        this.vendorID = vendorID;
+        this.taskName = taskName;
+        this.deadline = deadline;
+        this.status = status;
+        this.notes = notes;
+    }
+    
+    public boolean cekBatasWaktu(){
+        if (deadline == null) 
+            return false;
+        return LocalDateTime.now().isAfter(deadline);
+    }
+    
+    @Override
+    public String toString() {
+        return taskName + " - " + deadline + " [" + status + "]";
     }
 }
