@@ -9,6 +9,7 @@ package models;
  * @author ACER
  */
 public class Vendor {
+<<<<<<< Updated upstream
     private int id;
     private String name;
     private String category;
@@ -29,10 +30,39 @@ public class Vendor {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.unitType = unitType;
+=======
+    //id, name, kategori, min price, max price, kontak, rating, notes
+    public int ID;
+    public String namaVendor;
+    public String kategori;
+    public int minPrice;
+    public int maxPrice;
+    public String contact;
+    public int rating;
+    public String notes;
+    
+    //constructor
+    public Vendor(
+        int ID,
+        String namaVendor,
+        String kategori,
+        int minPrice,
+        int maxPrice,
+        String contact,
+        int rating,
+        String notes
+    ){
+        this.ID = ID;
+        this.namaVendor = namaVendor;
+        this.kategori = kategori;
+        this.minPrice = minPrice;
+        this.maxPrice = maxPrice;
+>>>>>>> Stashed changes
         this.contact = contact;
         this.rating = rating;
         this.notes = notes;
     }
+<<<<<<< Updated upstream
     
 //    constructor dengan id - untuk update
     public Vendor(int id, String name, String category, double minPrice, double maxPrice, String unitType, String contact, double rating, String notes) {
@@ -89,3 +119,6 @@ public class Vendor {
         return name + " (" + category + ") - Rp " + minPrice + " - Rp " + maxPrice;
     }
 }
+=======
+}
+>>>>>>> Stashed changes
