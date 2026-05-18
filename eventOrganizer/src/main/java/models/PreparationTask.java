@@ -69,4 +69,6 @@ public class PreparationTask {
     public String toString() {
         return taskName + " - " + deadline + " [" + status + "]";
     }
+    
+    
 }

@@ -8,6 +8,6 @@ package views;
  *
  * @author ACER
  */
-public class PBudgetEstimasi {
+public class PEventDetail {
     
 }
