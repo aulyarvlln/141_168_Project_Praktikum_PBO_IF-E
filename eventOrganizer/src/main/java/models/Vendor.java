@@ -4,88 +4,133 @@
  */
 package models;
 
+import dto.VendorDTO;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author ACER
  */
-public class Vendor {
-    private int id;
-    private String name;
-    private String category;
-    private double minPrice;
-    private double maxPrice;
-    private String unitType;
-    private String contact;
-    private double rating;
-    private String notes;
-    
-//    constructor kosong
-    public Vendor() {}
-    
-//    constructor tanpa id - untuk insert baru
-    public Vendor(String name, String category, double minPrice, double maxPrice, String unitType, String contact, double rating, String notes) {
-        this.name = name;
-        this.category = category;
-        this.minPrice = minPrice;
-        this.maxPrice = maxPrice;
-        this.unitType = unitType;
-        this.contact = contact;
-        this.rating = rating;
-        this.notes = notes;
-    }
-    
-//    constructor dengan id - untuk update
-    public Vendor(int id, String name, String category, double minPrice, double maxPrice, String unitType, String contact, double rating, String notes) {
-        this.id = id;
-        this.name = name;
-        this.category = category;
-        this.minPrice = minPrice;
-        this.maxPrice = maxPrice;
-        this.unitType = unitType;
-        this.contact = contact;
-        this.rating = rating;
-        this.notes = notes;
-    }
-    
-//    getter
-    public int getId() { return id; }
-    public String getName() { return name; }
-    public String getCategory() { return category; }
-    public double getMinPrice() { return minPrice; }
-    public double getMaxPrice() { return maxPrice; }
-    public String getUnitType() { return unitType; }
-    public String getContact() { return contact; }
-    public double getRating() { return rating; }
-    public String getNotes() { return notes; }
-    
-//    setter
-    public void setId(int id) { this.id = id; }
-    public void setName(String name) { this.name = name; }
-    public void setCategory(String category) { this.category = category; }
-    public void setMinPrice(double minPrice) { this.minPrice = minPrice; }
-    public void setMaxPrice(double maxPrice) { this.maxPrice = maxPrice; }
-    public void setUnitType(String unitType) { this.unitType = unitType; }
-    public void setContact(String contact) { this.contact = contact; }
-    public void setRating(double rating) { this.rating = rating; }
-    public void setNotes(String notes) { this.notes = notes; }
-    
-//    validasi data
-    public void validate() {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nama Vendor Tidak Boleh Kosong!");
-        }
-        
-        if (minPrice < 0 || maxPrice < 0) {
-            throw new IllegalArgumentException("Harga Tidak Boleh Negatif!");
-        }
-        
-        if (minPrice > maxPrice) {
-            throw new IllegalArgumentException("Harga Minimum tidak boleh lebih besar dari Harga Maksimum!");
-        }
-    }
-    
+public class Vendor extends BaseRepository implements Repository<VendorDTO>{
     @Override
-    public String toString() {
-        return name + " (" + category + ") - Rp " + minPrice + " - Rp " + maxPrice;
+    protected boolean validateData(Object entity) {
+         if (entity == null) 
+            return false;
+        VendorDTO vendor = (VendorDTO) entity;
+        return vendor.getNama() != null && !vendor.getNama().isEmpty() &&
+            vendor.getKategori() != null && !vendor.getKategori().isEmpty();
+    }
+
+    @Override
+    protected boolean insertEntity(Object entity) {
+        return insert((VendorDTO) entity);
+    }
+
+    @Override
+    protected boolean updateEntity(Object entity) {
+        return update((VendorDTO) entity);
+    }
+
+    @Override
+    public List<VendorDTO> getAll() {
+        List<VendorDTO> vendors = new ArrayList<>();
+        String sql = "SELECT * FROM vendor ORDER BY id";
+        
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                vendors.add(mapResultSetToDTO(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error get all vendors: " + e.getMessage());
+        }
+        return vendors;
+    }
+
+    @Override
+    public VendorDTO getById(int id) {
+        String sql = "SELECT * FROM vendor WHERE id = ?";
+        
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return mapResultSetToDTO(rs);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error get vendor by id: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public Boolean insert(VendorDTO vendor) {
+        String sql = "INSERT INTO vendor(nama, kategori, kontak, min_price, max_price) VALUES(?,?,?,?,?)";
+        
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, vendor.getNama());
+            stmt.setString(2, vendor.getKategori());
+            stmt.setString(3, vendor.getKontak());
+            stmt.setDouble(4, vendor.getMinPrice());
+            stmt.setDouble(5, vendor.getMaxPrice());
+            
+            int affected = stmt.executeUpdate();
+            if (affected > 0) {
+                ResultSet rs = stmt.getGeneratedKeys();
+                if (rs.next()) {
+                    vendor.setId(rs.getInt(1));
+                }
+                return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error insert vendor: " + e.getMessage());
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean update(VendorDTO vendor) {
+        String sql = "UPDATE vendor SET nama=?, kategori=?, kontak=?, min_price=?, max_price=? WHERE id=?";
+        
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+            stmt.setString(1, vendor.getNama());
+            stmt.setString(2, vendor.getKategori());
+            stmt.setString(3, vendor.getKontak());
+            stmt.setDouble(4, vendor.getMinPrice());
+            stmt.setDouble(5, vendor.getMaxPrice());
+            stmt.setInt(6, vendor.getId());
+            
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error update vendor: " + e.getMessage());
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean deleteById(int id) {
+        String sql = "DELETE FROM vendor WHERE id=?";
+        
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error delete vendor: " + e.getMessage());
+        }
+        return false;
+    }
+    
+    private VendorDTO mapResultSetToDTO(ResultSet rs) throws SQLException {
+        return new VendorDTO(
+            rs.getInt("id"),
+            rs.getString("nama"),
+            rs.getString("kategori"),
+            rs.getString("kontak"),
+            rs.getDouble("min_price"),
+            rs.getDouble("max_price")
+        );
     }
 }
