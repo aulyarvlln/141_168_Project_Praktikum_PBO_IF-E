@@ -9,34 +9,33 @@ package dto;
  * @author ACER
  */
 public class EventVendorDTO {
-    public int ID;
-    public int eventID;
-    public int vendorID;
-    public double estimatedPrice;
-    public double actualPrice;
-    public int qty;
-    public String paymentStatus;
-    public String notes;
-    public String vendorName;
-    public String vendorCategory;
+    private int id;
+    private int eventId;
+    private int vendorId;
+    private double hargaPakai;
+    private String vendorNama; // untuk join display
     
-    public EventVendorDTO(
-        int ID,
-        int eventID,
-        int vendorID,
-        double estimatedPrice,
-        double actualPrice,
-        int qty,
-        String paymentStatus,
-        String notes
-    ){
-        this.ID = ID;
-        this.eventID = eventID;
-        this.vendorID = vendorID;
-        this.estimatedPrice = estimatedPrice;
-        this.actualPrice = actualPrice;
-        this.qty = qty;
-        this.paymentStatus = paymentStatus;
-        this.notes = notes;
+    public EventVendorDTO() {}
+    
+    public EventVendorDTO(int id, int eventId, int vendorId, double hargaPakai) {
+        this.id = id;
+        this.eventId = eventId;
+        this.vendorId = vendorId;
+        this.hargaPakai = hargaPakai;
     }
+    
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    
+    public int getEventId() { return eventId; }
+    public void setEventId(int eventId) { this.eventId = eventId; }
+    
+    public int getVendorId() { return vendorId; }
+    public void setVendorId(int vendorId) { this.vendorId = vendorId; }
+    
+    public double getHargaPakai() { return hargaPakai; }
+    public void setHargaPakai(double hargaPakai) { this.hargaPakai = hargaPakai; }
+    
+    public String getVendorNama() { return vendorNama; }
+    public void setVendorNama(String vendorNama) { this.vendorNama = vendorNama; }
 }
