@@ -13,6 +13,7 @@ import dto.VendorDTO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import javax.swing.border.TitledBorder;
 
 /**
  *
@@ -35,7 +36,7 @@ public class PEventDetail extends JPanel{
     private JLabel lblBudget;
     private JLabel lblSisa;
     
-    public EventDetailPanel(EventDTO event, EventController eventController) {
+    public PEventDetail(EventDTO event, EventController eventController) {
         this.event = event;
         this.eventController = eventController;
         this.eventVendorController = new EventVendorController();
@@ -78,7 +79,7 @@ public class PEventDetail extends JPanel{
         gbc.gridx = 2;
         infoPanel.add(new JLabel("Customer:"), gbc);
         gbc.gridx = 3;
-        infoPanel.add(new JLabel(event.getNamaCustomer()), gbc);
+        infoPanel.add(new JLabel(event.getNamaCust()), gbc);
         
         // Row 2
         gbc.gridx = 0; gbc.gridy = 1;
@@ -121,7 +122,7 @@ public class PEventDetail extends JPanel{
         JPanel totalPanel = new JPanel(new GridLayout(2, 1));
         totalPanel.setBackground(Color.WHITE);
         totalPanel.add(new JLabel("Total Akhir Price:"));
-        BigDecimal totalAkhir = event.getTotalAkhirPrice() != null ? event.getTotalAkhirPrice() : BigDecimal.ZERO;
+        double totalAkhir = event.getTotalAkhirPrice() != 0 ? event.getTotalAkhirPrice() : 0.0;
         lblTotalAkhir = new JLabel(formatRupiah(totalAkhir));
         lblTotalAkhir.setFont(new Font("Poppins", Font.BOLD, 14));
         lblTotalAkhir.setForeground(new Color(231, 76, 60));
@@ -132,10 +133,10 @@ public class PEventDetail extends JPanel{
         JPanel sisaPanel = new JPanel(new GridLayout(2, 1));
         sisaPanel.setBackground(Color.WHITE);
         sisaPanel.add(new JLabel("Sisa Budget:"));
-        BigDecimal sisa = event.getBudgetCust().subtract(totalAkhir);
+        double sisa = event.getBudgetCust() - totalAkhir;
         lblSisa = new JLabel(formatRupiah(sisa));
         lblSisa.setFont(new Font("Poppins", Font.BOLD, 14));
-        if (sisa.compareTo(BigDecimal.ZERO) >= 0) {
+        if (sisa >= 0) {
             lblSisa.setForeground(new Color(46, 204, 113));
         } else {
             lblSisa.setForeground(new Color(231, 76, 60));
@@ -298,8 +299,8 @@ public class PEventDetail extends JPanel{
                                                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (result == JOptionPane.OK_OPTION) {
                     try {
-                        BigDecimal harga = new BigDecimal(txtHarga.getText());
-                        if (harga.compareTo(BigDecimal.ZERO) <= 0) {
+                        double harga = Double.parseDouble(txtHarga.getText());
+                        if (harga <= 0) {
                             JOptionPane.showMessageDialog(this, "Harga harus lebih dari 0!");
                             return;
                         }
@@ -312,7 +313,7 @@ public class PEventDetail extends JPanel{
     }
     
     private void showAddTaskDialog() {
-        AddTaskDialog dialog = new AddTaskDialog(
+        DTambahTugas dialog = new DTambahTugas(
             (JFrame) SwingUtilities.getWindowAncestor(this),
             event.getId(),
             taskController,
@@ -360,8 +361,7 @@ public class PEventDetail extends JPanel{
         }
     }
     
-    private String formatRupiah(BigDecimal amount) {
-        if (amount == null) return "Rp 0";
+    private String formatRupiah(double amount) {
         return String.format("Rp %,.0f", amount).replace(",", ".");
     }
     

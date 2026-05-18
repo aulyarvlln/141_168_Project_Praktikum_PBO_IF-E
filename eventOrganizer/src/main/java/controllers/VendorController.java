@@ -55,6 +55,10 @@ public class VendorController {
     public VendorDTO getVendorById(int id) {
         return vendorModel.getById(id);
     }
+
+    public boolean insert(VendorDTO newVendor) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
     public interface VendorSelectCallback {
         void onVendorSelected(VendorDTO vendor);

@@ -188,7 +188,7 @@ public class MainFrame extends JFrame {
     }
     
     private void showVendorList() {
-        VendorListDialog dialog = new VendorListDialog(this, vendorController, null);
+        DVendorList dialog = new DVendorList(this, vendorController, null);
         dialog.setVisible(true);
     }
     
@@ -214,5 +214,9 @@ public class MainFrame extends JFrame {
     
     public void showErrorMessage(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public DefaultListModel<String> getEventListModel() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
