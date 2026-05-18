@@ -91,7 +91,7 @@ public class DTambahEvent extends JDialog {
         event.setTanggalEvent(new Date(((java.util.Date) dateSpinner.getValue()).getTime()));
         event.setBudgetCust(Double.parseDouble(txtBudget.getText()));
         event.setTotalTamu(Integer.parseInt(txtTotalTamu.getText()));
-        event.setStatusAcara("rencana");
+        event.setStatusAcara("belum selesai");
         event.setPaymentStatus("belum_bayar");
         
         eventController.saveEvent(event, this);

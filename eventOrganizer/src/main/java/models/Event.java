@@ -84,7 +84,7 @@ public class Event extends BaseRepository implements Repository<EventDTO> {
             stmt.setString(4, event.getNomorCust());
             stmt.setDouble(5, event.getBudgetCust());
             stmt.setInt(6, event.getTotalTamu());
-            stmt.setString(7, event.getStatusAcara() != null ? event.getStatusAcara() : "rencana");
+            stmt.setString(7, event.getStatusAcara() != null ? event.getStatusAcara() : "belum selesai");
             stmt.setDouble(8, event.getTotalAkhirPrice());
             stmt.setString(9, event.getPaymentStatus() != null ? event.getPaymentStatus() : "belum_bayar");
             

@@ -48,7 +48,7 @@ public class DTambahTugas extends JDialog {
         txtNamaTugas = new JTextField();
         formPanel.add(txtNamaTugas);
         
-        formPanel.add(new JLabel("Vendor (opsional):"));
+        formPanel.add(new JLabel("Vendor :"));
         cbVendor = new JComboBox<>();
         cbVendor.addItem("-- Tidak ada vendor --");
         formPanel.add(cbVendor);
@@ -61,7 +61,7 @@ public class DTambahTugas extends JDialog {
         formPanel.add(dateSpinner);
         
         formPanel.add(new JLabel("Status Pengerjaan:"));
-        cbStatus = new JComboBox<>(new String[]{"belum_mulai", "sedang_berjalan", "selesai", "terlambat"});
+        cbStatus = new JComboBox<>(new String[]{"belum selesai", "selesai"});
         formPanel.add(cbStatus);
         
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));

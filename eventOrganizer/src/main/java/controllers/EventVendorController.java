@@ -18,49 +18,48 @@ import models.EventVendor;
 import models.Event;
 
 public class EventVendorController {
-    private final EventVendor eventVendorModel;
+        private final EventVendor eventVendorModel;
     private final Event eventModel;
-    
+
     public EventVendorController() {
         this.eventVendorModel = new EventVendor();
         this.eventModel = new Event();
     }
-    
-    // MULTITHREADING: Load event vendors di thread terpisah
+
     public void loadEventVendors(int eventId, JTable table) {
         new Thread(() -> {
             List<EventVendorDTO> vendors = eventVendorModel.getByEventId(eventId);
-            
+
             SwingUtilities.invokeLater(() -> {
                 DefaultTableModel model = (DefaultTableModel) table.getModel();
                 model.setRowCount(0);
-                
+
                 for (EventVendorDTO ev : vendors) {
                     model.addRow(new Object[]{
                         ev.getId(),
                         ev.getVendorNama(),
-                        "Rp " + ev.getHargaPakai()
+                        ev.getVendorKategori(), // kolom kategori yang sebelumnya kosong
+                        String.format("Rp %,.0f", ev.getHargaPakai()).replace(",", "."),
+                        "Hapus"
                     });
                 }
             });
         }).start();
     }
-    
+
     public void addVendorToEvent(int eventId, VendorDTO vendor, double hargaPakai, JTable table) {
-        // MULTITHREADING: Add vendor di thread terpisah
         new Thread(() -> {
             EventVendorDTO ev = new EventVendorDTO();
             ev.setEventId(eventId);
             ev.setVendorId(vendor.getId());
             ev.setHargaPakai(hargaPakai);
-            
+
             boolean success = eventVendorModel.insert(ev);
-            
+
             if (success) {
-                // Update total akhir price event
                 eventModel.updateTotalAkhirPrice(eventId);
             }
-            
+
             SwingUtilities.invokeLater(() -> {
                 if (success) {
                     loadEventVendors(eventId, table);
@@ -71,15 +70,15 @@ public class EventVendorController {
             });
         }).start();
     }
-    
+
     public void removeVendorFromEvent(int eventId, int eventVendorId, JTable table) {
         new Thread(() -> {
             boolean success = eventVendorModel.deleteById(eventVendorId);
-            
+
             if (success) {
                 eventModel.updateTotalAkhirPrice(eventId);
             }
-            
+
             SwingUtilities.invokeLater(() -> {
                 if (success) {
                     loadEventVendors(eventId, table);

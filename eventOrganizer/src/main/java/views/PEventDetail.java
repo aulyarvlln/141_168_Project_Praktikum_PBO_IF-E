@@ -9,7 +9,6 @@ import controllers.EventVendorController;
 import controllers.TaskController;
 import controllers.VendorController;
 import dto.EventDTO;
-import dto.VendorDTO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -56,11 +55,10 @@ public class PEventDetail extends JPanel{
         JPanel infoPanel = new JPanel(new GridBagLayout());
         infoPanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(new Color(52, 152, 219), 2),
-            "📋 Informasi Event",
+            "Informasi Event",
             TitledBorder.LEFT,
             TitledBorder.TOP,
-            new Font("Poppins", Font.BOLD, 14),
-            new Color(52, 152, 219)
+            new Font("Poppins", Font.BOLD, 14)
         ));
         infoPanel.setBackground(Color.WHITE);
         
@@ -106,15 +104,14 @@ public class PEventDetail extends JPanel{
         lblBudget.setForeground(new Color(46, 204, 113));
         infoPanel.add(lblBudget, gbc);
         
-        // ========== STATUS PANEL ==========
+        // STATUS PANEL
         JPanel statusPanel = new JPanel(new GridLayout(1, 4, 15, 10));
         statusPanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(new Color(241, 196, 15), 2),
-            "💰 Status Keuangan & Acara",
+            "Status Keuangan & Acara",
             TitledBorder.LEFT,
             TitledBorder.TOP,
-            new Font("Poppins", Font.BOLD, 14),
-            new Color(241, 196, 15)
+            new Font("Poppins", Font.BOLD, 14)
         ));
         statusPanel.setBackground(Color.WHITE);
         
@@ -125,7 +122,6 @@ public class PEventDetail extends JPanel{
         double totalAkhir = event.getTotalAkhirPrice() != 0 ? event.getTotalAkhirPrice() : 0.0;
         lblTotalAkhir = new JLabel(formatRupiah(totalAkhir));
         lblTotalAkhir.setFont(new Font("Poppins", Font.BOLD, 14));
-        lblTotalAkhir.setForeground(new Color(231, 76, 60));
         totalPanel.add(lblTotalAkhir);
         statusPanel.add(totalPanel);
         
@@ -148,7 +144,7 @@ public class PEventDetail extends JPanel{
         JPanel statusAcaraPanel = new JPanel(new GridLayout(2, 1));
         statusAcaraPanel.setBackground(Color.WHITE);
         statusAcaraPanel.add(new JLabel("Status Acara:"));
-        cbEventStatus = new JComboBox<>(new String[]{"rencana", "berjalan", "selesai", "batal"});
+        cbEventStatus = new JComboBox<>(new String[]{"belum selesai", "selesai"});
         cbEventStatus.setSelectedItem(event.getStatusAcara());
         cbEventStatus.addActionListener(e -> updateEventStatus());
         statusAcaraPanel.add(cbEventStatus);
@@ -158,7 +154,7 @@ public class PEventDetail extends JPanel{
         JPanel paymentPanel = new JPanel(new GridLayout(2, 1));
         paymentPanel.setBackground(Color.WHITE);
         paymentPanel.add(new JLabel("Payment Status:"));
-        cbPaymentStatus = new JComboBox<>(new String[]{"belum_bayar", "sebagian", "lunas"});
+        cbPaymentStatus = new JComboBox<>(new String[]{"belum_bayar", "lunas"});
         cbPaymentStatus.setSelectedItem(event.getPaymentStatus());
         cbPaymentStatus.addActionListener(e -> updatePaymentStatus());
         paymentPanel.add(cbPaymentStatus);
@@ -168,11 +164,10 @@ public class PEventDetail extends JPanel{
         JPanel vendorPanel = new JPanel(new BorderLayout(5, 5));
         vendorPanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(new Color(155, 89, 182), 2),
-            "🏢 Vendor yang Dipakai",
+            "Vendor yang Dipakai",
             TitledBorder.LEFT,
             TitledBorder.TOP,
-            new Font("Poppins", Font.BOLD, 14),
-            new Color(155, 89, 182)
+            new Font("Poppins", Font.BOLD, 14)
         ));
         vendorPanel.setBackground(Color.WHITE);
         
@@ -190,9 +185,7 @@ public class PEventDetail extends JPanel{
         vendorTable.getColumn("Aksi").setCellRenderer(new ButtonRenderer());
         vendorTable.getColumn("Aksi").setCellEditor(new ButtonEditor(new JCheckBox(), vendorTable, "vendor"));
         
-        JButton btnAddVendor = new JButton("+ Tambah Vendor ke Event");
-        btnAddVendor.setBackground(new Color(155, 89, 182));
-        btnAddVendor.setForeground(Color.WHITE);
+        JButton btnAddVendor = new JButton("Tambah Vendor ke Event");
         btnAddVendor.setFocusPainted(false);
         btnAddVendor.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAddVendor.addActionListener(e -> showAddVendorDialog());
@@ -207,11 +200,10 @@ public class PEventDetail extends JPanel{
         JPanel taskPanel = new JPanel(new BorderLayout(5, 5));
         taskPanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(new Color(52, 152, 219), 2),
-            "✅ Tugas Persiapan",
+            "Tugas Persiapan",
             TitledBorder.LEFT,
             TitledBorder.TOP,
-            new Font("Poppins", Font.BOLD, 14),
-            new Color(52, 152, 219)
+            new Font("Poppins", Font.BOLD, 14)
         ));
         taskPanel.setBackground(Color.WHITE);
         
@@ -229,9 +221,7 @@ public class PEventDetail extends JPanel{
         taskTable.getColumn("Aksi").setCellRenderer(new ButtonRenderer());
         taskTable.getColumn("Aksi").setCellEditor(new ButtonEditor(new JCheckBox(), taskTable, "task"));
         
-        JButton btnAddTask = new JButton("+ Tambah Tugas Persiapan");
-        btnAddTask.setBackground(new Color(52, 152, 219));
-        btnAddTask.setForeground(Color.WHITE);
+        JButton btnAddTask = new JButton("Tambah Tugas Persiapan");
         btnAddTask.setFocusPainted(false);
         btnAddTask.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAddTask.addActionListener(e -> showAddTaskDialog());
@@ -251,18 +241,14 @@ public class PEventDetail extends JPanel{
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         bottomPanel.setBackground(new Color(236, 240, 241));
         
-        JButton btnBack = new JButton("← Kembali ke Daftar Event");
+        JButton btnBack = new JButton("Kembali ke Daftar Event");
         btnBack.setFont(new Font("Poppins", Font.BOLD, 12));
-        btnBack.setBackground(new Color(52, 73, 94));
-        btnBack.setForeground(Color.WHITE);
         btnBack.setFocusPainted(false);
         btnBack.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnBack.addActionListener(e -> ((MainFrame) SwingUtilities.getWindowAncestor(this)).showMainPanel());
         
-        JButton btnDeleteEvent = new JButton("🗑 Hapus Event Ini");
+        JButton btnDeleteEvent = new JButton("Hapus Event Ini");
         btnDeleteEvent.setFont(new Font("Poppins", Font.BOLD, 12));
-        btnDeleteEvent.setBackground(new Color(231, 76, 60));
-        btnDeleteEvent.setForeground(Color.WHITE);
         btnDeleteEvent.setFocusPainted(false);
         btnDeleteEvent.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnDeleteEvent.addActionListener(e -> deleteEvent());
@@ -369,8 +355,6 @@ public class PEventDetail extends JPanel{
     class ButtonRenderer extends JButton implements javax.swing.table.TableCellRenderer {
         public ButtonRenderer() {
             setOpaque(true);
-            setBackground(new Color(231, 76, 60));
-            setForeground(Color.WHITE);
             setFont(new Font("Poppins", Font.BOLD, 10));
         }
         
@@ -393,8 +377,6 @@ public class PEventDetail extends JPanel{
             this.type = type;
             button = new JButton("Hapus");
             button.setOpaque(true);
-            button.setBackground(new Color(231, 76, 60));
-            button.setForeground(Color.WHITE);
             button.setFont(new Font("Poppins", Font.BOLD, 10));
             button.addActionListener(e -> fireEditingStopped());
         }
