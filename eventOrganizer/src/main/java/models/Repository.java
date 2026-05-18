@@ -4,10 +4,16 @@
  */
 package models;
 
+import java.util.List;
+
 /**
  *
  * @author ACER
  */
-public interface Repository {
-    
+public interface Repository<T> {
+    List<T> getAll();
+    T getById(int id);
+    Boolean insert(T entity);
+    Boolean update(T entity);
+    Boolean deleteById(int id);
 }

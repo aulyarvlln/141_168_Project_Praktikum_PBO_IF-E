@@ -4,38 +4,93 @@
  */
 package dto;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
 
 /**
  *
  * @author ACER
  */
 public class TaskDTO {
-   public int ID;
-    public int eventID;
-    public int vendorID;
-    public String taskName;
-    public LocalDateTime deadline;
-    public String status;
-    public String notes;
-    public String vendorName;
-    public String eventName;
-
+    private int id;
+    private int eventId;
+    private int vendorId;
+    private String namaTugas;
+    private Date deadline;
+    private String statusPengerjaan;
+    private String vendorNama;
+    
+    public TaskDTO() {}
+    
     public TaskDTO(
-        int ID,
-        int eventID, 
-        int vendorID, 
-        String taskName, 
-        LocalDateTime deadline, 
-        String status, 
-        String notes    
+        int id, 
+        int eventId, 
+        int vendorId, 
+        String namaTugas, 
+        Date deadline, 
+        String statusPengerjaan    
     ){
-        this.ID = ID;
-        this.eventID = eventID;
-        this.vendorID = vendorID;
-        this.taskName = taskName;
+        this.id = id;
+        this.eventId = eventId;
+        this.vendorId = vendorId;
+        this.namaTugas = namaTugas;
         this.deadline = deadline;
-        this.status = status;
-        this.notes = notes;
+        this.statusPengerjaan = statusPengerjaan;
     }
+    
+    public int getId() { 
+        return id; 
+    }
+    
+    public void setId(int id) { 
+        this.id = id; 
+    }
+    
+    public int getEventId() { 
+        return eventId; 
+    }
+    
+    public void setEventId(int eventId) { 
+        this.eventId = eventId; 
+    }
+    
+    public Integer getVendorId() { 
+        return vendorId; 
+    }
+    
+    public void setVendorId(int vendorId) { 
+        this.vendorId = vendorId; 
+    }
+    
+    public String getNamaTugas() { 
+        return namaTugas; 
+    }
+    
+    public void setNamaTugas(String namaTugas) { 
+        this.namaTugas = namaTugas; 
+    }
+    
+    public Date getDeadline() { 
+        return deadline; 
+    }
+    
+    public void setDeadline(Date deadline) { 
+        this.deadline = deadline; 
+    }
+    
+    public String getStatusPengerjaan() { 
+        return statusPengerjaan; 
+    }
+    
+    public void setStatusPengerjaan(String statusPengerjaan) { 
+        this.statusPengerjaan = statusPengerjaan; 
+    }
+    
+    public String getVendorNama() { 
+        return vendorNama; 
+    }
+    
+    public void setVendorNama(String vendorNama) { 
+        this.vendorNama = vendorNama; 
+    }
+    
 }

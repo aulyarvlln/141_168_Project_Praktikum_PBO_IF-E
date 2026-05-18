@@ -9,34 +9,75 @@ package dto;
  * @author ACER
  */
 public class VendorDTO {
-    public int id;
-    public String name;
-    public String category;
-    public double minPrice;
-    public double maxPrice;
-    public String unitType;
-    public String contact;
-    public double rating;
-    public String notes;
+    private int id;
+    private String nama;
+    private String kategori;
+    private String kontak;
+    private double minPrice;
+    private double maxPrice;
+    
+    public VendorDTO() {}
     
     public VendorDTO(
-            int id, 
-            String name, 
-            String category, 
-            double minPrice, 
-            double maxPrice, 
-            String unitType, 
-            String contact, 
-            double rating, 
-            String notes) {
-        this.id = id;
-        this.name = name;
-        this.category = category;
-        this.minPrice = minPrice;
-        this.maxPrice = maxPrice;
-        this.unitType = unitType;
-        this.contact = contact;
-        this.rating = rating;
-        this.notes = notes;
+        int id, 
+        String nama, 
+        String kategori, 
+        String kontak, 
+        double minPrice, 
+        double maxPrice) {
+            this.id = id;
+            this.nama = nama;
+            this.kategori = kategori;
+            this.kontak = kontak;
+            this.minPrice = minPrice;
+            this.maxPrice = maxPrice;
+    }
+    
+    public int getId() { 
+        return id; 
+    }
+    
+    public void setId(int id) { 
+        this.id = id; 
+    }
+    
+    public String getNama() { 
+        return nama; 
+    }
+    
+    public void setNama(String nama) { 
+        this.nama = nama; 
+    }
+    
+    public String getKategori() { 
+        return kategori; 
+    }
+    
+    public void setKategori(String kategori) { 
+        this.kategori = kategori; 
+    }
+    
+    public String getKontak() { 
+        return kontak; 
+    }
+    
+    public void setKontak(String kontak) { 
+        this.kontak = kontak; 
+    }
+    
+    public double getMinPrice() { 
+        return minPrice; 
+    }
+    
+    public void setMinPrice(double minPrice) { 
+        this.minPrice = minPrice; 
+    }
+    
+    public double getMaxPrice() { 
+        return maxPrice; 
+    }
+    
+    public void setMaxPrice(double maxPrice) { 
+        this.maxPrice = maxPrice; 
     }
 }
