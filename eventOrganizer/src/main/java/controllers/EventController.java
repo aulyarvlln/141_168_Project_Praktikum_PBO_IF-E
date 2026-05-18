@@ -8,6 +8,136 @@ package controllers;
  *
  * @author ACER
  */
+
+import javax.swing.*;
+import java.util.List;
+import dto.EventDTO;
+import models.Event;
+import views.MainFrame;
+import views.PEventDetail;
+import views.DTambahEvent;
+
 public class EventController {
+    private final Event eventModel;
+    private MainFrame mainFrame;
     
+    public EventController() {
+        this.eventModel = new Event();
+    }
+    
+    public void setMainFrame(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
+    }
+    
+    // MULTITHREADING: Load data di thread terpisah
+    public void loadAllEvents(JTable table, DefaultListModel<String> eventListModel) {
+        new Thread(() -> {
+            List<EventDTO> events = eventModel.getAll();
+            
+            SwingUtilities.invokeLater(() -> {
+                if (table != null) {
+                    refreshEventTable(table, events);
+                }
+                if (eventListModel != null) {
+                    refreshEventListModel(eventListModel, events);
+                }
+            });
+        }).start();
+    }
+    
+    public void showAddEventDialog() {
+        DTambahEvent dialog = new DTambahEvent(mainFrame, this);
+        dialog.setVisible(true);
+    }
+    
+    public void saveEvent(EventDTO event, DTambahEvent dialog) {
+        // MULTITHREADING: Save di thread terpisah
+        new Thread(() -> {
+            boolean success = eventModel.insert(event);
+            
+            SwingUtilities.invokeLater(() -> {
+                if (success) {
+                    dialog.dispose();
+                    loadAllEvents(mainFrame.getEventTable(), mainFrame.getEventListModel());
+                    mainFrame.showMessage("Event berhasil ditambahkan!");
+                } else {
+                    mainFrame.showMessage("Gagal menambahkan event!");
+                }
+            });
+        }).start();
+    }
+    
+    public void showEventDetail(int eventId) {
+        // MULTITHREADING: Load detail di thread terpisah
+        new Thread(() -> {
+            EventDTO event = eventModel.getById(eventId);
+            
+            SwingUtilities.invokeLater(() -> {
+                if (event != null) {
+                    PEventDetail detailPanel = new PEventDetail(event, this);
+                    mainFrame.showDetailPanel(detailPanel);
+                } else {
+                    mainFrame.showMessage("Event tidak ditemukan!");
+                }
+            });
+        }).start();
+    }
+    
+    public void deleteEvent(int eventId) {
+        // MULTITHREADING: Delete di thread terpisah
+        new Thread(() -> {
+            boolean success = eventModel.deleteById(eventId);
+            
+            SwingUtilities.invokeLater(() -> {
+                if (success) {
+                    loadAllEvents(mainFrame.getEventTable(), mainFrame.getEventListModel());
+                    mainFrame.showMessage("Event berhasil dihapus!");
+                    mainFrame.showMainPanel();
+                } else {
+                    mainFrame.showMessage("Gagal menghapus event!");
+                }
+            });
+        }).start();
+    }
+    
+    public void updateEvent(EventDTO event) {
+        new Thread(() -> {
+            boolean success = eventModel.update(event);
+            
+            SwingUtilities.invokeLater(() -> {
+                if (success) {
+                    loadAllEvents(mainFrame.getEventTable(), mainFrame.getEventListModel());
+                    mainFrame.showMessage("Event berhasil diupdate!");
+                } else {
+                    mainFrame.showMessage("Gagal mengupdate event!");
+                }
+            });
+        }).start();
+    }
+    
+    public EventDTO getEventById(int eventId) {
+        return eventModel.getById(eventId);
+    }
+    
+    private void refreshEventTable(JTable table, List<EventDTO> events) {
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) table.getModel();
+        model.setRowCount(0);
+        
+        for (EventDTO e : events) {
+            model.addRow(new Object[]{
+                e.getId(),
+                e.getNamaEvent(),
+                e.getNamaCust(),
+                e.getTanggalEvent(),
+                e.getStatusAcara()
+            });
+        }
+    }
+    
+    private void refreshEventListModel(DefaultListModel<String> model, List<EventDTO> events) {
+        model.clear();
+        for (EventDTO e : events) {
+            model.addElement(e.getId() + " - " + e.getNamaEvent() + " (" + e.getNamaCust() + ")");
+        }
+    }
 }
