@@ -10,6 +10,7 @@ package controllers;
  */
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import dto.EventDTO;
 import models.Event;
@@ -20,20 +21,19 @@ import views.DTambahEvent;
 public class EventController {
     private final Event eventModel;
     private MainFrame mainFrame;
-    
+
     public EventController() {
         this.eventModel = new Event();
     }
-    
+
     public void setMainFrame(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
-    
-    // MULTITHREADING: Load data di thread terpisah
+
     public void loadAllEvents(JTable table, DefaultListModel<String> eventListModel) {
         new Thread(() -> {
             List<EventDTO> events = eventModel.getAll();
-            
+
             SwingUtilities.invokeLater(() -> {
                 if (table != null) {
                     refreshEventTable(table, events);
@@ -44,17 +44,16 @@ public class EventController {
             });
         }).start();
     }
-    
+
     public void showAddEventDialog() {
         DTambahEvent dialog = new DTambahEvent(mainFrame, this);
         dialog.setVisible(true);
     }
-    
+
     public void saveEvent(EventDTO event, DTambahEvent dialog) {
-        // MULTITHREADING: Save di thread terpisah
         new Thread(() -> {
             boolean success = eventModel.insert(event);
-            
+
             SwingUtilities.invokeLater(() -> {
                 if (success) {
                     dialog.dispose();
@@ -66,12 +65,11 @@ public class EventController {
             });
         }).start();
     }
-    
+
     public void showEventDetail(int eventId) {
-        // MULTITHREADING: Load detail di thread terpisah
         new Thread(() -> {
             EventDTO event = eventModel.getById(eventId);
-            
+
             SwingUtilities.invokeLater(() -> {
                 if (event != null) {
                     PEventDetail detailPanel = new PEventDetail(event, this);
@@ -82,12 +80,11 @@ public class EventController {
             });
         }).start();
     }
-    
+
     public void deleteEvent(int eventId) {
-        // MULTITHREADING: Delete di thread terpisah
         new Thread(() -> {
             boolean success = eventModel.deleteById(eventId);
-            
+
             SwingUtilities.invokeLater(() -> {
                 if (success) {
                     loadAllEvents(mainFrame.getEventTable(), mainFrame.getEventListModel());
@@ -99,41 +96,39 @@ public class EventController {
             });
         }).start();
     }
-    
+
+    // Dihapus dialog popup "berhasil diupdate" agar tidak mengganggu saat user
+    // ganti status acara / payment status di PEventDetail
     public void updateEvent(EventDTO event) {
         new Thread(() -> {
-            boolean success = eventModel.update(event);
-            
-            SwingUtilities.invokeLater(() -> {
-                if (success) {
-                    loadAllEvents(mainFrame.getEventTable(), mainFrame.getEventListModel());
-                    mainFrame.showMessage("Event berhasil diupdate!");
-                } else {
-                    mainFrame.showMessage("Gagal mengupdate event!");
-                }
-            });
+            eventModel.update(event);
+            // Refresh tabel di background tanpa popup
+            SwingUtilities.invokeLater(() ->
+                loadAllEvents(mainFrame.getEventTable(), mainFrame.getEventListModel()));
         }).start();
     }
-    
+
     public EventDTO getEventById(int eventId) {
         return eventModel.getById(eventId);
     }
-    
+
     private void refreshEventTable(JTable table, List<EventDTO> events) {
-        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) table.getModel();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
-        
+
         for (EventDTO e : events) {
             model.addRow(new Object[]{
                 e.getId(),
                 e.getNamaEvent(),
                 e.getNamaCust(),
                 e.getTanggalEvent(),
-                e.getStatusAcara()
+                e.getStatusAcara(),
+                // Fix: kolom Total Akhir sekarang ikut diisi
+                String.format("Rp %,.0f", e.getTotalAkhirPrice()).replace(",", ".")
             });
         }
     }
-    
+
     private void refreshEventListModel(DefaultListModel<String> model, List<EventDTO> events) {
         model.clear();
         for (EventDTO e : events) {

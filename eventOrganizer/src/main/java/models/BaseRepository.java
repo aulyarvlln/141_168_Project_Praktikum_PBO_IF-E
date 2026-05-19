@@ -19,7 +19,7 @@ public abstract class BaseRepository {
         this.dbConnection = DatabaseConnection.getInstance();
     }
     
-    protected Connection getConnection() {
+    public Connection getConnection() {
         return dbConnection.getConnection();
     }
     

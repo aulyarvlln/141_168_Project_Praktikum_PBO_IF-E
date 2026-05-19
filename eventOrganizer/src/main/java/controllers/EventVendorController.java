@@ -18,12 +18,16 @@ import models.EventVendor;
 import models.Event;
 
 public class EventVendorController {
-        private final EventVendor eventVendorModel;
+    private final EventVendor eventVendorModel;
     private final Event eventModel;
 
     public EventVendorController() {
         this.eventVendorModel = new EventVendor();
         this.eventModel = new Event();
+    }
+
+    public List<EventVendorDTO> getEventVendors(int eventId) {
+        return eventVendorModel.getByEventId(eventId);
     }
 
     public void loadEventVendors(int eventId, JTable table) {
@@ -38,7 +42,7 @@ public class EventVendorController {
                     model.addRow(new Object[]{
                         ev.getId(),
                         ev.getVendorNama(),
-                        ev.getVendorKategori(), // kolom kategori yang sebelumnya kosong
+                        ev.getVendorKategori(),
                         String.format("Rp %,.0f", ev.getHargaPakai()).replace(",", "."),
                         "Hapus"
                     });
@@ -47,7 +51,8 @@ public class EventVendorController {
         }).start();
     }
 
-    public void addVendorToEvent(int eventId, VendorDTO vendor, double hargaPakai, JTable table) {
+    public void addVendorToEvent(int eventId, VendorDTO vendor, double hargaPakai, 
+                                  JTable table, Runnable onTotalUpdated) {
         new Thread(() -> {
             EventVendorDTO ev = new EventVendorDTO();
             ev.setEventId(eventId);
@@ -57,36 +62,67 @@ public class EventVendorController {
             boolean success = eventVendorModel.insert(ev);
 
             if (success) {
-                eventModel.updateTotalAkhirPrice(eventId);
+                updateTotalAndRefresh(eventId, table, onTotalUpdated);
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null, "Vendor berhasil ditambahkan!"));
+            } else {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null, "Gagal menambahkan vendor!"));
             }
-
-            SwingUtilities.invokeLater(() -> {
-                if (success) {
-                    loadEventVendors(eventId, table);
-                    JOptionPane.showMessageDialog(null, "Vendor berhasil ditambahkan ke event!");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Gagal menambahkan vendor!");
-                }
-            });
         }).start();
     }
 
-    public void removeVendorFromEvent(int eventId, int eventVendorId, JTable table) {
+    public void removeVendorFromEvent(int eventId, int eventVendorId, 
+                                       JTable table, Runnable onTotalUpdated) {
         new Thread(() -> {
             boolean success = eventVendorModel.deleteById(eventVendorId);
 
             if (success) {
-                eventModel.updateTotalAkhirPrice(eventId);
+                updateTotalAndRefresh(eventId, table, onTotalUpdated);
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null, "Vendor berhasil dihapus!"));
+            } else {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(null, "Gagal menghapus vendor!"));
             }
-
-            SwingUtilities.invokeLater(() -> {
-                if (success) {
-                    loadEventVendors(eventId, table);
-                    JOptionPane.showMessageDialog(null, "Vendor berhasil dihapus dari event!");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Gagal menghapus vendor!");
-                }
-            });
         }).start();
+    }
+
+    // Ambil total terbaru dari DB
+    public double getTotalAkhir(int eventId) {
+        String sql = "SELECT COALESCE(SUM(harga_pakai), 0) as total FROM event_vendor WHERE event_id = ?";
+        try (java.sql.PreparedStatement stmt =
+                     eventVendorModel.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, eventId);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error get total: " + e.getMessage());
+        }
+        return 0.0;
+    }
+
+    private void updateTotalAndRefresh(int eventId, JTable vendorTable, Runnable onTotalUpdated) {
+        String sql = "UPDATE event e SET e.total_akhir_price = " +
+                     "(SELECT COALESCE(SUM(harga_pakai), 0) FROM event_vendor WHERE event_id = ?) " +
+                     "WHERE e.id = ?";
+        try (java.sql.PreparedStatement stmt =
+                     eventVendorModel.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, eventId);
+            stmt.setInt(2, eventId);
+            stmt.executeUpdate();
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error update total price: " + e.getMessage());
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            loadEventVendors(eventId, vendorTable);
+            // Panggil callback agar label di panel ikut terupdate
+            if (onTotalUpdated != null) {
+                onTotalUpdated.run();
+            }
+        });
     }
 }

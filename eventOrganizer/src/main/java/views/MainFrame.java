@@ -49,7 +49,6 @@ public class MainFrame extends JFrame {
         JPanel titlePanel = new JPanel(new BorderLayout());
         JLabel titleLabel = new JLabel("Daftar Event", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Poppins", Font.BOLD, 20));
-        //titleLabel.setForeground(new Color(41, 128, 185));
         titlePanel.add(titleLabel, BorderLayout.CENTER);
         mainPanel.add(titlePanel, BorderLayout.NORTH);
         
