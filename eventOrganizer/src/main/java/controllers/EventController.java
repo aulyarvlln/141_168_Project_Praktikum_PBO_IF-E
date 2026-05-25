@@ -19,7 +19,7 @@ import views.PEventDetail;
 import views.DTambahEvent;
 
 public class EventController {
-    private final Event eventModel;
+    private Event eventModel;
     private MainFrame mainFrame;
 
     public EventController() {
@@ -57,7 +57,7 @@ public class EventController {
             SwingUtilities.invokeLater(() -> {
                 if (success) {
                     dialog.dispose();
-                    loadAllEvents(mainFrame.getEventTable(), mainFrame.getEventListModel());
+                    loadAllEvents(mainFrame.getEventTable(), null);
                     mainFrame.showMessage("Event berhasil ditambahkan!");
                 } else {
                     mainFrame.showMessage("Gagal menambahkan event!");
@@ -71,10 +71,10 @@ public class EventController {
             EventDTO event = eventModel.getById(eventId);
 
             SwingUtilities.invokeLater(() -> {
-                if (event != null) {
+                if (event != null && mainFrame != null) {
                     PEventDetail detailPanel = new PEventDetail(event, this);
                     mainFrame.showDetailPanel(detailPanel);
-                } else {
+                } else if (mainFrame != null) {
                     mainFrame.showMessage("Event tidak ditemukan!");
                 }
             });
@@ -86,11 +86,11 @@ public class EventController {
             boolean success = eventModel.deleteById(eventId);
 
             SwingUtilities.invokeLater(() -> {
-                if (success) {
-                    loadAllEvents(mainFrame.getEventTable(), mainFrame.getEventListModel());
+                if (success && mainFrame != null) {
+                    loadAllEvents(mainFrame.getEventTable(), null);
                     mainFrame.showMessage("Event berhasil dihapus!");
                     mainFrame.showMainPanel();
-                } else {
+                } else if (mainFrame != null) {
                     mainFrame.showMessage("Gagal menghapus event!");
                 }
             });
@@ -102,14 +102,20 @@ public class EventController {
     public void updateEvent(EventDTO event) {
         new Thread(() -> {
             eventModel.update(event);
-            // Refresh tabel di background tanpa popup
-            SwingUtilities.invokeLater(() ->
-                loadAllEvents(mainFrame.getEventTable(), mainFrame.getEventListModel()));
+            SwingUtilities.invokeLater(() -> {
+                if (mainFrame != null) {
+                    loadAllEvents(mainFrame.getEventTable(), null);
+                }
+            });
         }).start();
     }
 
     public EventDTO getEventById(int eventId) {
         return eventModel.getById(eventId);
+    }
+    
+    public void updateTotalAkhirPrice(int eventId) {
+        eventModel.updateTotalAkhirPrice(eventId);
     }
 
     private void refreshEventTable(JTable table, List<EventDTO> events) {
@@ -123,8 +129,7 @@ public class EventController {
                 e.getNamaCust(),
                 e.getTanggalEvent(),
                 e.getStatusAcara(),
-                // Fix: kolom Total Akhir sekarang ikut diisi
-                String.format("Rp %,.0f", e.getTotalAkhirPrice()).replace(",", ".")
+                formatRupiah(e.getTotalAkhirPrice())
             });
         }
     }
@@ -134,5 +139,9 @@ public class EventController {
         for (EventDTO e : events) {
             model.addElement(e.getId() + " - " + e.getNamaEvent() + " (" + e.getNamaCust() + ")");
         }
+    }
+    
+    private String formatRupiah(double value) {
+        return String.format("Rp %,.0f", value).replace(",", ".");
     }
 }

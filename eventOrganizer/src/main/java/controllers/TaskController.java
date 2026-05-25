@@ -46,15 +46,10 @@ public class TaskController {
         }).start();
     }
 
-    public void addTask(int eventId, String namaTugas, Integer vendorId, Date deadline,
+    public void addTask(int eventId, String namaTugas, int vendorId, Date deadline,
                         String status, JTable table) {
         new Thread(() -> {
-            TaskDTO task = new TaskDTO();
-            task.setEventId(eventId);
-            task.setNamaTugas(namaTugas);
-            task.setVendorId(vendorId);
-            task.setDeadline(deadline);
-            task.setStatusPengerjaan(status);
+            TaskDTO task = new TaskDTO(0, eventId, vendorId, namaTugas, deadline, status);
 
             boolean success = taskModel.insert(task);
 

@@ -4,16 +4,17 @@
  */
 package models;
 
-import java.util.List;
-
 /**
  *
  * @author ACER
  */
+
+import java.util.List;
+
 public interface Repository<T> {
-    List<T> getAll();
-    T getById(int id);
-    Boolean insert(T entity);
-    Boolean update(T entity);
-    Boolean deleteById(int id);
+    List<T> getAll(); // ambil semua data
+    T getById(int id); // ambil satu data berdasarkan ID
+    Boolean insert(T entity); // tambah data baru
+    Boolean update(T entity); // update data
+    Boolean deleteById(int id); // hapus data
 }

@@ -33,7 +33,7 @@ public class DTambahTugas extends JDialog {
         this.taskController = taskController;
         this.taskTable = taskTable;
 
-        setSize(450, 320);
+        setSize(450, 350);
         setLocationRelativeTo(parent);
         initComponents();
         loadEventVendors();
@@ -62,7 +62,7 @@ public class DTambahTugas extends JDialog {
         formPanel.add(dateSpinner);
 
         formPanel.add(new JLabel("Status Pengerjaan:"));
-        cbStatus = new JComboBox<>(new String[]{"belum selesai", "selesai"});
+        cbStatus = new JComboBox<>(new String[]{"Belum Selesai", "Selesai"});
         formPanel.add(cbStatus);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -115,21 +115,18 @@ public class DTambahTugas extends JDialog {
             return;
         }
 
-        // Validasi status
-        String status = (String) cbStatus.getSelectedItem();
-        if (status == null || status.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Status harus dipilih!");
+        // Validasi vendor (wajib pilih)
+        int selectedIndex = cbVendor.getSelectedIndex();
+        if (selectedIndex <= 0 || eventVendors == null || eventVendors.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Pilih vendor terlebih dahulu!");
             return;
         }
+        String status = (String) cbStatus.getSelectedItem();
 
         // Ambil vendor ID dari event vendor yang dipilih
-        Integer vendorId = null;
-        if (cbVendor.isEnabled() && cbVendor.getSelectedIndex() > 0) {
-            int selectedIndex = cbVendor.getSelectedIndex() - 1; 
-            if (eventVendors != null && selectedIndex >= 0 && selectedIndex < eventVendors.size()) {
-                vendorId = eventVendors.get(selectedIndex).getVendorId();
-            }
-        }
+        int vendorIndex = selectedIndex - 1;  // karena index 0 adalah "-- Pilih Vendor --"
+        EventVendorDTO selectedVendor = eventVendors.get(vendorIndex);
+        int vendorId = selectedVendor.getVendorId();
 
         Date deadline = new Date(((java.util.Date) dateSpinner.getValue()).getTime());
 

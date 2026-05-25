@@ -84,16 +84,37 @@ public class DTambahEvent extends JDialog {
             return;
         }
         
-        EventDTO event = new EventDTO();
-        event.setNamaEvent(txtNamaEvent.getText());
-        event.setNamaCust(txtNamaCustomer.getText());
-        event.setNomorCust(txtNomorCust.getText());
-        event.setTanggalEvent(new Date(((java.util.Date) dateSpinner.getValue()).getTime()));
-        event.setBudgetCust(Double.parseDouble(txtBudget.getText()));
-        event.setTotalTamu(Integer.parseInt(txtTotalTamu.getText()));
-        event.setStatusAcara("belum selesai");
-        event.setPaymentStatus("belum_bayar");
-        
-        eventController.saveEvent(event, this);
+        try {
+            double budget = Double.parseDouble(txtBudget.getText());
+            int totalTamu = Integer.parseInt(txtTotalTamu.getText());
+            
+            if (budget <= 0) {
+                JOptionPane.showMessageDialog(this, "Budget harus lebih dari 0!");
+                return;
+            }
+            
+            if (totalTamu <= 0) {
+                JOptionPane.showMessageDialog(this, "Total tamu harus lebih dari 0!");
+                return;
+            }
+            
+            EventDTO event = new EventDTO(
+                0,  // id (auto increment)
+                txtNamaEvent.getText(),
+                new Date(((java.util.Date) dateSpinner.getValue()).getTime()),
+                txtNamaCustomer.getText(),
+                txtNomorCust.getText(),
+                budget,
+                totalTamu,
+                "Belum Selesai",      // status default
+                0.0,             // total_akhir_price (akan dihitung dari vendor)
+                "Belum Bayar"         // payment status default
+            );
+            
+            eventController.saveEvent(event, this);
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Budget dan Total Tamu harus berupa angka!");
+        }
     }
 }

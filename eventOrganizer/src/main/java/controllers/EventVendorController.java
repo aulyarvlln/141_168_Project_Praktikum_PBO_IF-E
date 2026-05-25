@@ -43,7 +43,7 @@ public class EventVendorController {
                         ev.getId(),
                         ev.getVendorNama(),
                         ev.getVendorKategori(),
-                        String.format("Rp %,.0f", ev.getHargaPakai()).replace(",", "."),
+                        formatRupiah(ev.getHargaPakai()),
                         "Hapus"
                     });
                 }
@@ -54,20 +54,43 @@ public class EventVendorController {
     public void addVendorToEvent(int eventId, VendorDTO vendor, double hargaPakai, 
                                   JTable table, Runnable onTotalUpdated) {
         new Thread(() -> {
-            EventVendorDTO ev = new EventVendorDTO();
-            ev.setEventId(eventId);
-            ev.setVendorId(vendor.getId());
-            ev.setHargaPakai(hargaPakai);
-
+            EventVendorDTO ev = new EventVendorDTO(0, eventId, vendor.getId(), hargaPakai);
+            
             boolean success = eventVendorModel.insert(ev);
 
-            if (success) {
-                updateTotalAndRefresh(eventId, table, onTotalUpdated);
-                SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null, "Vendor berhasil ditambahkan!"));
-            } else {
-                SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null, "Gagal menambahkan vendor!"));
+            SwingUtilities.invokeLater(() -> {
+                if (success) {
+                    updateTotalAndRefresh(eventId, table, onTotalUpdated);
+                    JOptionPane.showMessageDialog(null, "Vendor berhasil ditambahkan!");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Gagal menambahkan vendor!");
+                }
+            });
+        }).start();
+    }
+    
+    public void updateVendorHarga(int eventId, int eventVendorId, double hargaBaru,
+                               JTable table, Runnable onTotalUpdated) {
+        new Thread(() -> {
+            EventVendorDTO ev = eventVendorModel.getById(eventVendorId);
+            if (ev != null) {
+                ev.setHargaPakai(hargaBaru);
+                boolean success = eventVendorModel.update(ev);
+
+                if (success) {
+                    eventModel.updateTotalAkhirPrice(eventId);
+
+                    SwingUtilities.invokeLater(() -> {
+                        loadEventVendors(eventId, table);
+                        if (onTotalUpdated != null) {
+                            onTotalUpdated.run();
+                        }
+                        JOptionPane.showMessageDialog(null, "Harga vendor berhasil diupdate!");
+                    });
+                } else {
+                    SwingUtilities.invokeLater(() ->
+                        JOptionPane.showMessageDialog(null, "Gagal mengupdate harga!"));
+                }
             }
         }).start();
     }
@@ -77,45 +100,25 @@ public class EventVendorController {
         new Thread(() -> {
             boolean success = eventVendorModel.deleteById(eventVendorId);
 
-            if (success) {
-                updateTotalAndRefresh(eventId, table, onTotalUpdated);
-                SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null, "Vendor berhasil dihapus!"));
-            } else {
-                SwingUtilities.invokeLater(() ->
-                    JOptionPane.showMessageDialog(null, "Gagal menghapus vendor!"));
-            }
+            SwingUtilities.invokeLater(() -> {
+                if (success) {
+                    // ✅ Sama, pakai method dari Event model
+                    updateTotalAndRefresh(eventId, table, onTotalUpdated);
+                    JOptionPane.showMessageDialog(null, "Vendor berhasil dihapus!");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Gagal menghapus vendor!");
+                }
+            });
         }).start();
     }
 
     // Ambil total terbaru dari DB
     public double getTotalAkhir(int eventId) {
-        String sql = "SELECT COALESCE(SUM(harga_pakai), 0) as total FROM event_vendor WHERE event_id = ?";
-        try (java.sql.PreparedStatement stmt =
-                     eventVendorModel.getConnection().prepareStatement(sql)) {
-            stmt.setInt(1, eventId);
-            java.sql.ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getDouble("total");
-            }
-        } catch (java.sql.SQLException e) {
-            System.err.println("Error get total: " + e.getMessage());
-        }
-        return 0.0;
+        return eventModel.getTotalAkhirPrice(eventId);
     }
 
     private void updateTotalAndRefresh(int eventId, JTable vendorTable, Runnable onTotalUpdated) {
-        String sql = "UPDATE event e SET e.total_akhir_price = " +
-                     "(SELECT COALESCE(SUM(harga_pakai), 0) FROM event_vendor WHERE event_id = ?) " +
-                     "WHERE e.id = ?";
-        try (java.sql.PreparedStatement stmt =
-                     eventVendorModel.getConnection().prepareStatement(sql)) {
-            stmt.setInt(1, eventId);
-            stmt.setInt(2, eventId);
-            stmt.executeUpdate();
-        } catch (java.sql.SQLException e) {
-            System.err.println("Error update total price: " + e.getMessage());
-        }
+        eventModel.updateTotalAkhirPrice(eventId); // tugasnya model, bukan controller
 
         SwingUtilities.invokeLater(() -> {
             loadEventVendors(eventId, vendorTable);
@@ -124,5 +127,9 @@ public class EventVendorController {
                 onTotalUpdated.run();
             }
         });
+    }
+    
+    private String formatRupiah(double value) {
+        return String.format("Rp %,.0f", value).replace(",", ".");
     }
 }

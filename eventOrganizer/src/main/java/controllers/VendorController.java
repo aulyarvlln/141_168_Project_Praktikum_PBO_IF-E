@@ -4,6 +4,11 @@
  */
 package controllers;
 
+/**
+ *
+ * @author ACER
+ */
+
 import dto.VendorDTO;
 import models.Vendor;
 import views.DVendorList;
@@ -11,10 +16,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
-/**
- *
- * @author ACER
- */
 public class VendorController {
     private final Vendor vendorModel;
     
@@ -36,7 +37,7 @@ public class VendorController {
                         v.getNama(),
                         v.getKategori(),
                         v.getKontak(),
-                        "Rp " + v.getMinPrice() + " - Rp " + v.getMaxPrice()
+                        formatRupiah(v.getMinPrice()) + " - " + formatRupiah(v.getMaxPrice())   
                     });
                 } 
             });
@@ -55,9 +56,9 @@ public class VendorController {
     public VendorDTO getVendorById(int id) {
         return vendorModel.getById(id);
     }
-
-    public boolean insert(VendorDTO newVendor) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    
+    private String formatRupiah(double value) {
+        return String.format("Rp %,.0f", value).replace(",", ".");
     }
     
     public interface VendorSelectCallback {

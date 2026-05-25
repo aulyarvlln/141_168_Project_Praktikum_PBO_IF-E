@@ -10,6 +10,7 @@ import java.sql.Date;
  *
  * @author ACER
  */
+
 public class TaskDTO {
     private int id;
     private int eventId;
@@ -17,10 +18,8 @@ public class TaskDTO {
     private String namaTugas;
     private Date deadline;
     private String statusPengerjaan;
-    private String vendorNama;
-    
-    public TaskDTO() {}
-    
+    private String vendorNama; // tambah ini
+        
     public TaskDTO(
         int id, 
         int eventId, 
@@ -38,59 +37,27 @@ public class TaskDTO {
     }
     
     public int getId() { 
-        return id; 
-    }
-    
-    public void setId(int id) { 
-        this.id = id; 
-    }
+        return id; }
     
     public int getEventId() { 
-        return eventId; 
-    }
+        return eventId; }
     
-    public void setEventId(int eventId) { 
-        this.eventId = eventId; 
-    }
-    
-    public Integer getVendorId() { 
-        return vendorId; 
-    }
-    
-    public void setVendorId(int vendorId) { 
-        this.vendorId = vendorId; 
-    }
+    public int getVendorId() { 
+        return vendorId; }
     
     public String getNamaTugas() { 
-        return namaTugas; 
-    }
-    
-    public void setNamaTugas(String namaTugas) { 
-        this.namaTugas = namaTugas; 
-    }
+        return namaTugas; }
     
     public Date getDeadline() { 
-        return deadline; 
-    }
-    
-    public void setDeadline(Date deadline) { 
-        this.deadline = deadline; 
-    }
+        return deadline; }
     
     public String getStatusPengerjaan() { 
-        return statusPengerjaan; 
-    }
-    
+        return statusPengerjaan; }
     public void setStatusPengerjaan(String statusPengerjaan) { 
-        this.statusPengerjaan = statusPengerjaan; 
-    }
+        this.statusPengerjaan = statusPengerjaan; }
     
     public String getVendorNama() { 
-        return vendorNama; 
-    }
-    
+        return vendorNama; }
     public void setVendorNama(String vendorNama) { 
-        this.vendorNama = vendorNama; 
-    }
-    
+        this.vendorNama = vendorNama; }
 }

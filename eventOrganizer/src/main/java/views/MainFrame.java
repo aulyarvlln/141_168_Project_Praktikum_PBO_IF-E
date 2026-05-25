@@ -4,6 +4,11 @@
  */
 package views;
 
+/**
+ *
+ * @author ACER
+ */
+
 import controllers.EventController;
 import controllers.VendorController;
 import javax.swing.*;
@@ -12,10 +17,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-/**
- *
- * @author ACER
- */
 public class MainFrame extends JFrame {
     private JTable eventTable;
     private DefaultTableModel tableModel;
@@ -160,9 +161,5 @@ public class MainFrame extends JFrame {
     
     public void showErrorMessage(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public DefaultListModel<String> getEventListModel() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

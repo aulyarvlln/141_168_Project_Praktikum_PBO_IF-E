@@ -12,6 +12,7 @@ package models;
 import java.sql.Connection;
 import utils.DatabaseConnection;
 
+// menyediakan kerangka dasar untuk semua repository
 public abstract class BaseRepository {
     protected DatabaseConnection dbConnection;
     
@@ -21,31 +22,5 @@ public abstract class BaseRepository {
     
     public Connection getConnection() {
         return dbConnection.getConnection();
-    }
-    
-    // Abstract method untuk validasi sebelum operasi
-    protected abstract boolean validateData(Object entity);
-    
-    // Template method pattern
-    public final boolean executeWithValidation(Object entity, OperationType type) {
-        if (!validateData(entity)) {
-            return false;
-        }
-        
-        switch(type) {
-            case INSERT:
-                return insertEntity(entity);
-            case UPDATE:
-                return updateEntity(entity);
-            default:
-                return false;
-        }
-    }
-    
-    protected abstract boolean insertEntity(Object entity);
-    protected abstract boolean updateEntity(Object entity);
-    
-    public enum OperationType {
-        INSERT, UPDATE
     }
 }

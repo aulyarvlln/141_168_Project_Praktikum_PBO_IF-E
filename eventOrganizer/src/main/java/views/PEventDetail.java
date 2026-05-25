@@ -4,6 +4,11 @@
  */
 package views;
 
+/**
+ *
+ * @author ACER
+ */
+
 import controllers.EventController;
 import controllers.EventVendorController;
 import controllers.TaskController;
@@ -135,7 +140,7 @@ public class PEventDetail extends JPanel {
         JPanel statusAcaraPanel = new JPanel(new GridLayout(2, 1));
         statusAcaraPanel.setBackground(Color.WHITE);
         statusAcaraPanel.add(new JLabel("Status Acara:"));
-        cbEventStatus = new JComboBox<>(new String[]{"belum selesai", "selesai"});
+        cbEventStatus = new JComboBox<>(new String[]{"Belum Selesai", "Selesai"});
         cbEventStatus.setSelectedItem(event.getStatusAcara());
         cbEventStatus.addActionListener(e -> updateEventStatus());
         statusAcaraPanel.add(cbEventStatus);
@@ -145,7 +150,7 @@ public class PEventDetail extends JPanel {
         JPanel paymentPanel = new JPanel(new GridLayout(2, 1));
         paymentPanel.setBackground(Color.WHITE);
         paymentPanel.add(new JLabel("Payment Status:"));
-        cbPaymentStatus = new JComboBox<>(new String[]{"belum_bayar", "lunas"});
+        cbPaymentStatus = new JComboBox<>(new String[]{"Belum Bayar", "Lunas"});
         cbPaymentStatus.setSelectedItem(event.getPaymentStatus());
         cbPaymentStatus.addActionListener(e -> updatePaymentStatus());
         paymentPanel.add(cbPaymentStatus);
@@ -173,6 +178,21 @@ public class PEventDetail extends JPanel {
         vendorTable.getColumn("Aksi").setCellRenderer(new ButtonRenderer());
         vendorTable.getColumn("Aksi").setCellEditor(new ButtonEditor(new JCheckBox(), vendorTable, "vendor"));
 
+        vendorTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = vendorTable.getSelectedRow();
+                    int col = vendorTable.getSelectedColumn();
+                    if (row != -1 && col != 4) {  // col 4 adalah kolom "Aksi"
+                        int eventVendorId = (int) vendorTable.getValueAt(row, 0);
+                        String hargaStr = vendorTable.getValueAt(row, 3).toString();
+                        double currentHarga = Double.parseDouble(hargaStr.replace("Rp ", "").replace(".", ""));
+                        showEditHargaDialog(eventVendorId, currentHarga);
+                    }
+                }
+            }
+        });
         JButton btnAddVendor = new JButton("Tambah Vendor ke Event");
         btnAddVendor.setFocusPainted(false);
         btnAddVendor.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -268,13 +288,15 @@ public class PEventDetail extends JPanel {
 
     // Update label totalAkhir dan sisa budget di panel tanpa reload seluruh panel
     private void refreshStatusLabels() {
-        double totalAkhir = eventVendorController.getTotalAkhir(event.getId());
-        event.setTotalAkhirPrice(totalAkhir);
-        double sisa = event.getBudgetCust() - totalAkhir;
+        EventDTO updatedEvent = eventController.getEventById(event.getId());
+        if (updatedEvent != null) {
+            double totalAkhir = updatedEvent.getTotalAkhirPrice();
+            double sisa = event.getBudgetCust() - totalAkhir;
 
-        lblTotalAkhir.setText(formatRupiah(totalAkhir));
-        lblSisa.setText(formatRupiah(sisa));
-        lblSisa.setForeground(sisa >= 0 ? new Color(46, 204, 113) : new Color(231, 76, 60));
+            lblTotalAkhir.setText(formatRupiah(totalAkhir));
+            lblSisa.setText(formatRupiah(sisa));
+            lblSisa.setForeground(sisa >= 0 ? new Color(46, 204, 113) : new Color(231, 76, 60));
+        }
     }
 
     private void loadData() {
@@ -285,22 +307,55 @@ public class PEventDetail extends JPanel {
     private void showAddVendorDialog() {
         vendorController.showVendorListDialog((JFrame) SwingUtilities.getWindowAncestor(this),
             vendor -> {
-                JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
+                // cek sisa budget
+                double currentTotal = eventController.getEventById(event.getId()).getTotalAkhirPrice();
+                double currentSisa = event.getBudgetCust() - currentTotal;
+            
+                JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
                 panel.add(new JLabel("Vendor:"));
                 panel.add(new JLabel(vendor.getNama()));
                 panel.add(new JLabel("Harga Pakai (Rp):"));
                 JTextField txtHarga = new JTextField();
                 panel.add(txtHarga);
+                panel.add(new JLabel("Sisa Budget Saat Ini:"));
+                panel.add(new JLabel(formatRupiah(currentSisa)));
 
                 int result = JOptionPane.showConfirmDialog(this, panel, "Masukkan Harga Vendor",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (result == JOptionPane.OK_OPTION) {
                     try {
                         double harga = Double.parseDouble(txtHarga.getText());
+                        // harga harus > 0
                         if (harga <= 0) {
                             JOptionPane.showMessageDialog(this, "Harga harus lebih dari 0!");
                             return;
                         }
+                        
+                        // harga harus diantara minprice dan maxprice
+                        if (harga < vendor.getMinPrice()) {
+                            JOptionPane.showMessageDialog(this, 
+                            "Harga terlalu rendah! Minimal " + formatRupiah(vendor.getMinPrice()));
+                            return;
+                        }
+                        if (harga > vendor.getMaxPrice()) {
+                            JOptionPane.showMessageDialog(this, 
+                            "Harga terlalu tinggi! Maksimal " + formatRupiah(vendor.getMaxPrice()));
+                            return;
+                        }
+                        
+                        // sisa budget setelah tambah vemdor
+                        double sisaSetelah = currentSisa - harga;
+                        if (sisaSetelah < 0) {
+                            int confirm = JOptionPane.showConfirmDialog(this,
+                                "Peringatan: Sisa budget akan menjadi " + formatRupiah(sisaSetelah) + " (minus)!\n" +
+                                "Apakah Anda tetap ingin menambahkan vendor ini?",
+                                "Budget Tidak Cukup", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                            if (confirm != JOptionPane.YES_OPTION) {
+                                return;  // Batal tambah vendor
+                            }
+                        }
+                    
                         // Kirim callback refreshStatusLabels agar label ikut update
                         eventVendorController.addVendorToEvent(
                             event.getId(), vendor, harga, vendorTable,
@@ -354,6 +409,35 @@ public class PEventDetail extends JPanel {
                 event.getId(), eventVendorId, vendorTable,
                 () -> refreshStatusLabels()
             );
+        }
+    }
+    
+    private void showEditHargaDialog(int eventVendorId, double currentHarga) {
+        JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
+        panel.add(new JLabel("Harga Saat Ini:"));
+        panel.add(new JLabel(formatRupiah(currentHarga)));
+        panel.add(new JLabel("Harga Baru (Rp):"));
+        JTextField txtHargaBaru = new JTextField();
+        panel.add(txtHargaBaru);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Edit Harga Vendor",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                double hargaBaru = Double.parseDouble(txtHargaBaru.getText());
+
+                if (hargaBaru <= 0) {
+                    JOptionPane.showMessageDialog(this, "Harga harus lebih dari 0!");
+                    return;
+                }
+
+                eventVendorController.updateVendorHarga(event.getId(), eventVendorId, hargaBaru, 
+                    vendorTable, () -> refreshStatusLabels());
+
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Harga tidak valid!");
+            }
         }
     }
 
