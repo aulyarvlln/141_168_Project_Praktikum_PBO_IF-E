@@ -1,13 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package views;
-
-/**
- *
- * @author ACER
- */
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,55 +23,116 @@ public class DTambahTugas extends JDialog {
         this.eventId = eventId;
         this.taskController = taskController;
         this.taskTable = taskTable;
-
-        setSize(450, 350);
+        setSize(460, 420);
         setLocationRelativeTo(parent);
+        setBackground(Color.WHITE);
         initComponents();
         loadEventVendors();
     }
 
     private void initComponents() {
-        setLayout(new BorderLayout(10, 10));
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(Color.WHITE);
 
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // ===== HEADER =====
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(MainFrame.COL_SIDEBAR);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 24, 20, 24));
 
-        formPanel.add(new JLabel("Nama Tugas:"));
-        txtNamaTugas = new JTextField();
-        formPanel.add(txtNamaTugas);
+        JLabel title = new JLabel("Tambah Tugas Persiapan");
+        title.setFont(new Font("Georgia", Font.BOLD, 18));
+        title.setForeground(Color.WHITE);
 
-        formPanel.add(new JLabel("Vendor (dari event):"));
+        JLabel subtitle = new JLabel("Isi detail tugas yang perlu dikerjakan");
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        subtitle.setForeground(new Color(148, 163, 184));
+
+        JPanel headerText = new JPanel(new BorderLayout(0, 4));
+        headerText.setOpaque(false);
+        headerText.add(title, BorderLayout.NORTH);
+        headerText.add(subtitle, BorderLayout.SOUTH);
+        headerPanel.add(headerText, BorderLayout.CENTER);
+
+        // ===== FORM =====
+        JPanel formPanel = new JPanel();
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 24, 10, 24));
+
+        // Nama Tugas
+        txtNamaTugas = MainFrame.createStyledTextField();
+        addFormRow(formPanel, "Nama Tugas", txtNamaTugas);
+
+        // Vendor ComboBox
         cbVendor = new JComboBox<>();
         cbVendor.addItem("-- Tidak ada vendor --");
-        formPanel.add(cbVendor);
+        cbVendor.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        cbVendor.setBackground(new Color(248, 250, 252));
+        cbVendor.setBorder(BorderFactory.createLineBorder(MainFrame.COL_BORDER, 1));
+        addFormRowComponent(formPanel, "Vendor (dari event)", cbVendor);
 
-        formPanel.add(new JLabel("Deadline:"));
+        // Deadline Spinner
         SpinnerDateModel dateModel = new SpinnerDateModel();
         dateSpinner = new JSpinner(dateModel);
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd");
         dateSpinner.setEditor(dateEditor);
-        formPanel.add(dateSpinner);
+        dateSpinner.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        dateSpinner.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(MainFrame.COL_BORDER, 1),
+            BorderFactory.createEmptyBorder(4, 8, 4, 8)
+        ));
+        addFormRowComponent(formPanel, "Deadline", dateSpinner);
 
-        formPanel.add(new JLabel("Status Pengerjaan:"));
+        // Status ComboBox
         cbStatus = new JComboBox<>(new String[]{"Belum Selesai", "Selesai"});
-        formPanel.add(cbStatus);
+        cbStatus.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        cbStatus.setBackground(new Color(248, 250, 252));
+        cbStatus.setBorder(BorderFactory.createLineBorder(MainFrame.COL_BORDER, 1));
+        addFormRowComponent(formPanel, "Status Pengerjaan", cbStatus);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        // ===== FOOTER =====
+        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 16));
+        footerPanel.setBackground(new Color(248, 250, 252));
+        footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, MainFrame.COL_BORDER));
 
-        JButton btnSave = new JButton("Simpan");
-        btnSave.addActionListener(e -> saveTask());
-
-        JButton btnCancel = new JButton("Batal");
+        JButton btnCancel = MainFrame.createOutlineButton("Batal");
         btnCancel.addActionListener(e -> dispose());
 
-        buttonPanel.add(btnSave);
-        buttonPanel.add(btnCancel);
+        JButton btnSave = MainFrame.createPrimaryButton("Simpan Tugas");
+        btnSave.addActionListener(e -> saveTask());
 
-        add(formPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+        footerPanel.add(btnCancel);
+        footerPanel.add(btnSave);
+
+        root.add(headerPanel, BorderLayout.NORTH);
+        root.add(formPanel, BorderLayout.CENTER);
+        root.add(footerPanel, BorderLayout.SOUTH);
+
+        setContentPane(root);
     }
 
-    // Ambil vendor dari event ini saja, bukan semua vendor
+    private void addFormRow(JPanel panel, String label, JTextField field) {
+        JLabel lbl = MainFrame.createFormLabel(label);
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        lbl.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(lbl);
+        panel.add(field);
+        panel.add(Box.createVerticalStrut(14));
+    }
+
+    private void addFormRowComponent(JPanel panel, String label, JComponent comp) {
+        JLabel lbl = MainFrame.createFormLabel(label);
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        lbl.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+        comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        comp.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(lbl);
+        panel.add(comp);
+        panel.add(Box.createVerticalStrut(14));
+    }
+
     private void loadEventVendors() {
         new Thread(() -> {
             EventVendorController eventVendorController = new EventVendorController();
@@ -88,7 +140,6 @@ public class DTambahTugas extends JDialog {
 
             SwingUtilities.invokeLater(() -> {
                 if (eventVendors == null || eventVendors.isEmpty()) {
-                    // Tidak ada vendor di event ini, disable combo
                     cbVendor.setEnabled(false);
                     cbVendor.removeAllItems();
                     cbVendor.addItem("-- Belum ada vendor di event ini --");
@@ -102,35 +153,32 @@ public class DTambahTugas extends JDialog {
     }
 
     private void saveTask() {
-        // Validasi nama tugas
         String namaTugas = txtNamaTugas.getText().trim();
         if (namaTugas.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama tugas tidak boleh kosong!");
+            showWarning("Nama tugas tidak boleh kosong!");
             return;
         }
-
-        // Validasi deadline tidak boleh null
         if (dateSpinner.getValue() == null) {
-            JOptionPane.showMessageDialog(this, "Deadline harus diisi!");
+            showWarning("Deadline harus diisi!");
             return;
         }
-
-        // Validasi vendor (wajib pilih)
         int selectedIndex = cbVendor.getSelectedIndex();
         if (selectedIndex <= 0 || eventVendors == null || eventVendors.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Pilih vendor terlebih dahulu!");
+            showWarning("Pilih vendor terlebih dahulu!");
             return;
         }
-        String status = (String) cbStatus.getSelectedItem();
 
-        // Ambil vendor ID dari event vendor yang dipilih
-        int vendorIndex = selectedIndex - 1;  // karena index 0 adalah "-- Pilih Vendor --"
+        String status = (String) cbStatus.getSelectedItem();
+        int vendorIndex = selectedIndex - 1;
         EventVendorDTO selectedVendor = eventVendors.get(vendorIndex);
         int vendorId = selectedVendor.getVendorId();
-
         Date deadline = new Date(((java.util.Date) dateSpinner.getValue()).getTime());
 
         taskController.addTask(eventId, namaTugas, vendorId, deadline, status, taskTable);
         dispose();
+    }
+
+    private void showWarning(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Perhatian", JOptionPane.WARNING_MESSAGE);
     }
 }
