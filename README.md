@@ -2,10 +2,12 @@
 - Azzah Fauziya Kamila | 123240168
 ---
 ## **Event Organizer**
+
 Aplikasi untuk mengelola event, vendor, dan tugas persiapan acara.
 ---
 
 ### Deskripsi
+
 Event Organizer adalah aplikasi yang membantu event organizer dalam merencanakan dan memantau progress acara. Aplikasi ini memungkinkan pengguna untuk mengelola data event, memilih vendor sesuai kategori, serta mengatur tugas persiapan sebelum acara berlangsung.
 ---
 
