@@ -102,7 +102,7 @@ public class EventVendorController {
 
             SwingUtilities.invokeLater(() -> {
                 if (success) {
-                    // ✅ Sama, pakai method dari Event model
+                    // Sama, pakai method dari Event model
                     updateTotalAndRefresh(eventId, table, onTotalUpdated);
                     JOptionPane.showMessageDialog(null, "Vendor berhasil dihapus!");
                 } else {
@@ -118,7 +118,7 @@ public class EventVendorController {
     }
 
     private void updateTotalAndRefresh(int eventId, JTable vendorTable, Runnable onTotalUpdated) {
-        eventModel.updateTotalAkhirPrice(eventId); // tugasnya model, bukan controller
+        eventModel.updateTotalAkhirPrice(eventId); // hitung ulang total harga
 
         SwingUtilities.invokeLater(() -> {
             loadEventVendors(eventId, vendorTable);

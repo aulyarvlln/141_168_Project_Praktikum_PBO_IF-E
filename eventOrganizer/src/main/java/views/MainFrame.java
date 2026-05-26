@@ -136,11 +136,8 @@ public class MainFrame extends JFrame {
 
         JPanel headerRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         headerRight.setOpaque(false);
-        JButton btnRefresh = createOutlineButton("Refresh");
-        btnRefresh.addActionListener(e -> loadEvents());
         JButton btnAdd = createPrimaryButton("+ Tambah Event");
         btnAdd.addActionListener(e -> eventController.showAddEventDialog());
-        headerRight.add(btnRefresh);
         headerRight.add(btnAdd);
 
         header.add(headerLeft, BorderLayout.WEST);

@@ -61,6 +61,7 @@ public class VendorController {
         return String.format("Rp %,.0f", value).replace(",", ".");
     }
     
+    // interface callback utk memilih vendor
     public interface VendorSelectCallback {
         void onVendorSelected(VendorDTO vendor);
     }

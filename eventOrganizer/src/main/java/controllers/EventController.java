@@ -118,7 +118,7 @@ public class EventController {
         eventModel.updateTotalAkhirPrice(eventId);
     }
 
-    private void refreshEventTable(JTable table, List<EventDTO> events) {
+    public void refreshEventTable(JTable table, List<EventDTO> events) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
 
